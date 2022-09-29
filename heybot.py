@@ -22,7 +22,7 @@ class Heybot():
         pass
 
     def tick(self):
-        """ Peforms a random animation """
+        """ Update the counters, and screen """
         pass
 
     
