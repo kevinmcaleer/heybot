@@ -9,12 +9,56 @@ import struct
 from time import sleep, gmtime
 from machine import RTC
 from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2
+from random import choice
+from countdowntimer import CountDownTimer
 
 display = PicoGraphics(display=DISPLAY_PICO_DISPLAY_2, rotate=180)
+
+WIDTH, HEIGHT = display.get_bounds()
 
 timer = 1
 EYES = 'eyes.jpg'
 RIGHT = 'right.jpg'
+normal = 1
+
+angry_frames = ['angry01.jpg',
+         'angry02.jpg',
+         'angry03.jpg',
+         'angry04.jpg',
+         'angry05.jpg',
+         'angry06.jpg',
+         'angry07.jpg']
+
+normal_frames = ['normal01.jpg',
+                 'normal02.jpg',
+                 'normal03.jpg',
+                 'normal04.jpg']
+
+static_frames = ['eyes.jpg',
+                 'eyes.jpg']
+    
+class Animate():
+    direction = 'forward'
+    frame = 1    
+    frames = []
+    is_done_animating = False
+    
+    def animate(self, display):
+        """ Animate the frames """
+        if self.direction == 'forward':
+            self.frame += 1
+            
+            if self.frame > len(self.frames):
+                self.direction = 'backward'
+                self.frame = len(self.frames)
+        else:
+            self.frame -= 1
+            if self.frame < 1:
+                self.direction = 'forward'
+                self.frame = 1
+                self.is_done_animating = True
+        
+        draw_jpg(display,self.frames[self.frame-1])
 
 def draw_jpg(display, filename):
     j = jpegdec.JPEG(display)
@@ -28,7 +72,6 @@ def draw_jpg(display, filename):
     # Decode the JPEG
     j.decode(0, 0, jpegdec.JPEG_SCALE_FULL)
     display.remove_clip()
-    display.update()
 
 def update_clock(max_attempts = 5):
     ntp_host = 'pool.ntp.org'
@@ -66,13 +109,11 @@ def get_time():
     hour = t.datetime()[4]
     minute = t.datetime()[5] 
     second = t.datetime()[6]
-    h = str(hour)
+    h = str(hour +1) #BST
     m = str(minute)
     s = str(second)
     t_str = f"{h:02}:{m:02}:{s:02}"
     return t_str
-
-
 
 draw_jpg(display,EYES)
 logging.debug('about to connect to wifi')
@@ -91,13 +132,42 @@ angle = 0
 spacing = 1
 wordwrap = False
 display.set_pen(15)
+
+# Setup Animations
+animations = [angry_frames,normal_frames, static_frames]
+animation = Animate()
+animation.frames = choice(animations)
+
+# Create a countdown timer
+countdown = CountDownTimer()
+countdown.duration = 1 # minute
+countdown.go()
+
+RED = display.create_pen(255,0,0)
 while True:
     current_time = get_time()
     display.set_pen(0)
     display.clear()
-    draw_jpg(display, EYES)
+    # draw_jpg(display, EYES)
+    #animate_normal(display)
+    countdown.tick()
+    h,m,s = countdown.status()
+    remaining_time = f'{h:02}:{m:02}:{s:02}'
+    if countdown.alarm:
+        print('countdown done')
+    if not animation.is_done_animating:
+        animation.animate(display)
+    else:
+        animation.frames = choice(animations)
+        animation.is_done_animating = False
+        animation.animate(display)
+        
     display.set_pen(15)
+    x = WIDTH // 2 - (display.measure_text(current_time, scale, spacing) //2 )
     display.text(current_time, x, y, wordwrap, scale, angle, spacing)
+    x = WIDTH // 2 - (display.measure_text(remaining_time, scale, spacing) //2 )
+    display.set_pen(RED)
+    display.text(remaining_time, x, y+210, wordwrap, scale, angle, spacing)
     
     display.update()
-    sleep(1)
+    sleep(0.01)

@@ -2,7 +2,7 @@
 # Kevin McAleer
 # September 2022
 
-
+ §
 class Heybot():
 
     current_time = "" # the current time as a string
