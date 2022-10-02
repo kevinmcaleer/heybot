@@ -11,6 +11,7 @@ from machine import RTC
 from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2
 from random import choice
 from countdowntimer import CountDownTimer
+from pimoroni import Button
 
 display = PicoGraphics(display=DISPLAY_PICO_DISPLAY_2, rotate=180)
 
@@ -20,6 +21,11 @@ timer = 1
 EYES = 'eyes.jpg'
 RIGHT = 'right.jpg'
 normal = 1
+
+button_a = Button(12)
+button_b = Button(13)
+button_x = Button(14)
+button_y = Button(15)
 
 angry_frames = ['angry01.jpg',
          'angry02.jpg',
@@ -119,7 +125,9 @@ t = update_clock()
 
 # Create a countdown timer
 countdown = CountDownTimer()
-countdown.duration_in_seconds = 3
+
+# countdown.duration_in_seconds = 3
+countdown.duration = 25
 
 
 display.set_font("bitmap8")
@@ -139,17 +147,26 @@ animation = Animate()
 animation.frames = choice(animations)
 
 # Start the timer
-countdown.go()
+countdown.reset()
 
 RED = display.create_pen(255,0,0)
 while True:
+    
+    # Read button states
+    if button_y.read():
+        print("button Y")
+        countdown.reset()
+    if button_a.read():
+        print("button A")
+        countdown.reset()
+    
     current_time = countdown.current_time_str
     display.set_pen(0)
     display.clear()
     # draw_jpg(display, EYES)
     #animate_normal(display)
     countdown.tick()
-    countdown.status()
+#     countdown.status()
     remaining_time = countdown.remaining_str
     
     if not animation.is_done_animating:
@@ -175,4 +192,4 @@ while True:
     display.text(remaining_time, x, y+210, wordwrap, scale, angle, spacing)
     
     display.update()
-    sleep(0.01)
+#     sleep(0.01)

@@ -9,15 +9,15 @@ def get_time():
     year = t[0]
     month = t[1]
     day = t[2]
-    hour = t[4]
-    minute = t[5] 
-    second = t[6]
+    hour = t[3]
+    minute = t[4] 
+    second = t[5]
+    weekday = t[6]
+    yearday = t[7]
     #h = hour +1 #BST
     h = hour
     m = minute
     s = second
-    
-    
     
     return h, m, s
 
@@ -40,16 +40,16 @@ class CountDownTimer():
     
     @duration.setter
     def duration(self, duration_in_minutes):
-        self.self.duration_in_seconds = duration_in_minutes * 60
+        self.duration_in_seconds = duration_in_minutes * 60
             
     @duration.setter
     def duration_seconds(self, duration):
         self.target_time = time.time() + duration
         self.duration_in_seconds = duration
-    
             
-    def go(self):
+    def reset(self):
         self.start_time = time.time()
+        self.alarm = False
     
     def time_to_str(self,time_as_number)->str:
         target = time.localtime(time_as_number)
@@ -66,19 +66,19 @@ class CountDownTimer():
     
     @property
     def target_time(self)->int:
-                
         # add duration in seconds to epoc
         target = self.start_time + (self.duration_in_seconds)
-#         print(f'target time is: {target}')
         return target
     
     @property
     def target_str(self)->str:
+        """ Return the target time as a string """
 
         return self.time_to_str(self.target_time)
     
     @property
     def remaining_str(self)->str:
+        """ Return the remaining time as a string """
         time_left = self.remaining_seconds       
 
         return self.time_to_str(time_left)
