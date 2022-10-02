@@ -6,7 +6,7 @@ from config import wifi_ssid, wifi_password
 import usocket
 import jpegdec
 import struct
-from time import sleep, gmtime
+from time import sleep, gmtime, time
 from machine import RTC
 from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2
 from random import choice
@@ -36,6 +36,10 @@ normal_frames = ['normal01.jpg',
 
 static_frames = ['eyes.jpg',
                  'eyes.jpg']
+    
+RED = display.create_pen(255,0,0)
+WHITE = display.create_pen(255,255,255)
+BLACK = display.create_pen(0,0,0)
     
 class Animate():
     direction = 'forward'
@@ -101,19 +105,10 @@ def update_clock(max_attempts = 5):
         attempt += 1
     return False
 
-def get_time():
-    t = machine.RTC()
-    year = t.datetime()[0]
-    month = t.datetime()[1]
-    day = t.datetime()[2]
-    hour = t.datetime()[4]
-    minute = t.datetime()[5] 
-    second = t.datetime()[6]
-    h = str(hour +1) #BST
-    m = str(minute)
-    s = str(second)
-    t_str = f"{h:02}:{m:02}:{s:02}"
-    return t_str
+def banner(display, bg_colour, fg_colour):
+    display.set_pen(bg_colour)
+    display.rectangle(0,210,WIDTH,HEIGHT)
+    display.set_pen(fg_colour)
 
 draw_jpg(display,EYES)
 logging.debug('about to connect to wifi')
@@ -122,8 +117,13 @@ connect_to_wifi(wifi_ssid, wifi_password)
 
 t = update_clock()
 
+# Create a countdown timer
+countdown = CountDownTimer()
+countdown.duration_in_seconds = 3
+
+
 display.set_font("bitmap8")
-current_time = get_time()
+current_time = countdown.current_time_str
 print(current_time)
 x = 1
 y = 1
@@ -138,35 +138,40 @@ animations = [angry_frames,normal_frames, static_frames]
 animation = Animate()
 animation.frames = choice(animations)
 
-# Create a countdown timer
-countdown = CountDownTimer()
-countdown.duration = 1 # minute
+# Start the timer
 countdown.go()
 
 RED = display.create_pen(255,0,0)
 while True:
-    current_time = get_time()
+    current_time = countdown.current_time_str
     display.set_pen(0)
     display.clear()
     # draw_jpg(display, EYES)
     #animate_normal(display)
     countdown.tick()
-    h,m,s = countdown.status()
-    remaining_time = f'{h:02}:{m:02}:{s:02}'
-    if countdown.alarm:
-        print('countdown done')
+    countdown.status()
+    remaining_time = countdown.remaining_str
+    
     if not animation.is_done_animating:
         animation.animate(display)
     else:
         animation.frames = choice(animations)
         animation.is_done_animating = False
         animation.animate(display)
-        
+    
     display.set_pen(15)
     x = WIDTH // 2 - (display.measure_text(current_time, scale, spacing) //2 )
     display.text(current_time, x, y, wordwrap, scale, angle, spacing)
+    
     x = WIDTH // 2 - (display.measure_text(remaining_time, scale, spacing) //2 )
-    display.set_pen(RED)
+    if countdown.alarm:
+        print('countdown done')
+        if gmtime()[5] % 2 == 0 :
+            banner(display,RED, WHITE)
+        else:
+            banner(display,BLACK,RED)
+    else:
+        display.set_pen(RED)
     display.text(remaining_time, x, y+210, wordwrap, scale, angle, spacing)
     
     display.update()
