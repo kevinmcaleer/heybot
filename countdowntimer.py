@@ -1,6 +1,6 @@
 # Countdown timer
 
-from machine import RTC
+# from machine import RTC
 import time
 
 def get_time():
