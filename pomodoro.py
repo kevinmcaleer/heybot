@@ -165,6 +165,8 @@ animation.frames = choice(animations)
 # Start the timer
 countdown.reset()
 
+countdown.duration_in_seconds = 2
+
 # The main loop
 while True:
     
@@ -199,7 +201,7 @@ while True:
     x = WIDTH // 2 - (display.measure_text(remaining_time, scale, spacing) //2 )
     if countdown.alarm:
         print('countdown done')
-        if gmtime()[5] % 2 == 0 :
+        if time()[5] % 2 == 0 :
             banner(display,RED, WHITE)
         else:
             banner(display,BLACK,RED)
