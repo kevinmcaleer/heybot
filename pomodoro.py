@@ -18,7 +18,7 @@ display = PicoGraphics(display=DISPLAY_PICO_DISPLAY_2, rotate=180)
 # Get the screen dimensions
 WIDTH, HEIGHT = display.get_bounds()
 
-EYES = 'eyes.jpg'
+EYES = 'images/eyes.jpg'
 
 # set up buttons
 button_a = Button(12)
@@ -27,23 +27,24 @@ button_x = Button(14)
 button_y = Button(15)
 
 # Setup the animation frames for Angry face
-angry_frames = ['angry01.jpg',
-         'angry02.jpg',
-         'angry03.jpg',
-         'angry04.jpg',
-         'angry05.jpg',
-         'angry06.jpg',
-         'angry07.jpg']
+angry_frames = [
+         'images/angry01.jpg',
+         'images/angry02.jpg',
+         'images/angry03.jpg',
+         'images/angry04.jpg',
+         'images/angry05.jpg',
+         'images/angry06.jpg',
+         'images/angry07.jpg']
 
 # Setup the animation frames for Normal face
-normal_frames = ['normal01.jpg',
-                 'normal02.jpg',
-                 'normal03.jpg',
-                 'normal04.jpg']
+normal_frames = ['images/normal01.jpg',
+                 'images/normal02.jpg',
+                 'images/normal03.jpg',
+                 'images/normal04.jpg']
 
 # Setup the animation frames for Static face
-static_frames = ['eyes.jpg',
-                 'eyes.jpg']
+static_frames = ['images/eyes.jpg',
+                 'images/eyes.jpg']
 
 # Define the pen colors - used for drawing text and shapes
 RED = display.create_pen(255,0,0)
